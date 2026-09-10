@@ -20,14 +20,14 @@
 namespace mlpack {
 
 template<typename MatType>
-MeanPoolingType<MatType>::MeanPoolingType() :
+MeanPooling<MatType>::MeanPooling() :
     Layer<MatType>()
 {
   // Nothing to do here.
 }
 
 template<typename MatType>
-MeanPoolingType<MatType>::MeanPoolingType(
+MeanPooling<MatType>::MeanPooling(
     const size_t kernelWidth,
     const size_t kernelHeight,
     const size_t strideWidth,
@@ -45,8 +45,8 @@ MeanPoolingType<MatType>::MeanPoolingType(
 }
 
 template<typename MatType>
-MeanPoolingType<MatType>::MeanPoolingType(
-    const MeanPoolingType& other) :
+MeanPooling<MatType>::MeanPooling(
+    const MeanPooling& other) :
     Layer<MatType>(other),
     kernelWidth(other.kernelWidth),
     kernelHeight(other.kernelHeight),
@@ -59,8 +59,8 @@ MeanPoolingType<MatType>::MeanPoolingType(
 }
 
 template<typename MatType>
-MeanPoolingType<MatType>::MeanPoolingType(
-    MeanPoolingType&& other) :
+MeanPooling<MatType>::MeanPooling(
+    MeanPooling&& other) :
     Layer<MatType>(std::move(other)),
     kernelWidth(std::move(other.kernelWidth)),
     kernelHeight(std::move(other.kernelHeight)),
@@ -73,8 +73,8 @@ MeanPoolingType<MatType>::MeanPoolingType(
 }
 
 template<typename MatType>
-MeanPoolingType<MatType>&
-MeanPoolingType<MatType>::operator=(const MeanPoolingType& other)
+MeanPooling<MatType>&
+MeanPooling<MatType>::operator=(const MeanPooling& other)
 {
   if (&other != this)
   {
@@ -91,8 +91,8 @@ MeanPoolingType<MatType>::operator=(const MeanPoolingType& other)
 }
 
 template<typename MatType>
-MeanPoolingType<MatType>&
-MeanPoolingType<MatType>::operator=(MeanPoolingType&& other)
+MeanPooling<MatType>&
+MeanPooling<MatType>::operator=(MeanPooling&& other)
 {
   if (&other != this)
   {
@@ -109,40 +109,39 @@ MeanPoolingType<MatType>::operator=(MeanPoolingType&& other)
 }
 
 template<typename MatType>
-void MeanPoolingType<MatType>::Forward(
+void MeanPooling<MatType>::Forward(
     const MatType& input, MatType& output)
 {
   // Create Alias of input as 2D image as input is 1D vector.
-  arma::Cube<typename MatType::elem_type> inputTemp(
-      const_cast<MatType&>(input).memptr(), this->inputDimensions[0],
-      this->inputDimensions[1], input.n_cols * channels, false, false);
+  CubeType inputTemp;
+  MakeAlias(inputTemp, input, this->inputDimensions[0],
+      this->inputDimensions[1], input.n_cols * channels, 0, false);
 
   // Create Alias of output as 2D image as output is 1D vector.
-  arma::Cube<typename MatType::elem_type> outputTemp(output.memptr(),
-      this->outputDimensions[0], this->outputDimensions[1],
-      input.n_cols * channels, false, true);
+  CubeType outputTemp;
+  MakeAlias(outputTemp, output, this->outputDimensions[0],
+      this->outputDimensions[1], input.n_cols * channels, 0, true);
 
   // Apply Pooling to the input.
   PoolingOperation(inputTemp, outputTemp);
 }
 
 template<typename MatType>
-void MeanPoolingType<MatType>::Backward(
+void MeanPooling<MatType>::Backward(
   const MatType& input,
   const MatType& /* output */,
   const MatType& gy,
   MatType& g)
 {
   // Create Alias of gy as 2D matrix as gy is 1D vector.
-  arma::Cube<typename MatType::elem_type> mappedError =
-      arma::Cube<typename MatType::elem_type>(((MatType&) gy).memptr(),
-      this->outputDimensions[0], this->outputDimensions[1],
-      channels * input.n_cols, false, false);
+  CubeType mappedError;
+  MakeAlias(mappedError, gy, this->outputDimensions[0],
+      this->outputDimensions[1], channels * input.n_cols, 0, false);
 
   // Create Alias of g as 2D matrix as g is 1D vector.
-  arma::Cube<typename MatType::elem_type> gTemp(g.memptr(),
-      this->inputDimensions[0], this->inputDimensions[1],
-      channels * input.n_cols, false, true);
+  CubeType gTemp;
+  MakeAlias(gTemp, g, this->inputDimensions[0],
+      this->inputDimensions[1], channels * input.n_cols, 0, true);
 
   // Initialize the gradient with zero.
   gTemp.zeros();
@@ -155,7 +154,7 @@ void MeanPoolingType<MatType>::Backward(
 }
 
 template<typename MatType>
-void MeanPoolingType<MatType>::ComputeOutputDimensions()
+void MeanPooling<MatType>::ComputeOutputDimensions()
 {
   this->outputDimensions = this->inputDimensions;
 
@@ -185,7 +184,7 @@ void MeanPoolingType<MatType>::ComputeOutputDimensions()
 
 template<typename MatType>
 template<typename Archive>
-void MeanPoolingType<MatType>::serialize(
+void MeanPooling<MatType>::serialize(
     Archive& ar,
     const uint32_t /* version */)
 {
@@ -200,9 +199,9 @@ void MeanPoolingType<MatType>::serialize(
 }
 
 template<typename MatType>
-void MeanPoolingType<MatType>::PoolingOperation(
-    const arma::Cube<typename MatType::elem_type>& input,
-    arma::Cube<typename MatType::elem_type>& output)
+void MeanPooling<MatType>::PoolingOperation(
+    const CubeType& input,
+    CubeType& output)
 {
   // Iterate over all slices individually.
   #pragma omp parallel for
@@ -243,7 +242,7 @@ void MeanPoolingType<MatType>::PoolingOperation(
 }
 
 template<typename MatType>
-void MeanPoolingType<MatType>::Unpooling(
+void MeanPooling<MatType>::Unpooling(
     const MatType& error,
     MatType& output)
 {

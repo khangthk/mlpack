@@ -16,7 +16,7 @@ Train an AdaBoost model on random data and predict labels on a random test set.
 // Train an AdaBoost model on random data and predict labels on test data:
 
 // All data and labels are uniform random; 10 dimensional data, 5 classes.
-// Replace with a data::Load() call or similar for a real application.
+// Replace with a Load() call or similar for a real application.
 arma::mat dataset(10, 1000, arma::fill::randu); // 1000 points.
 arma::Row<size_t> labels =
     arma::randi<arma::Row<size_t>>(1000, arma::distr_param(0, 4));
@@ -49,11 +49,11 @@ std::cout << arma::accu(predictions == 3) << " test points classified as class "
 
 #### See also:
 
- * [mlpack classifiers](../../index.md#classification-algorithms)
+ * [mlpack classifiers](../modeling.md#classification)
  * [`Perceptron`](perceptron.md)
  * [`DecisionTree`](decision_tree.md)
  * [AdaBoost on Wikipedia](https://en.wikipedia.org/wiki/AdaBoost)
- * [AdaBoost.MH paper (pdf)](https://dl.acm.org/doi/pdf/10.1145/279943.279960)
+ * [AdaBoost.MH paper (pdf)](https://www.schapire.net/papers/SchapireSi98.pdf)
 
 ### Constructors
 
@@ -84,7 +84,7 @@ std::cout << arma::accu(predictions == 3) << " test points classified as class "
 | **name** | **type** | **description** | **default** |
 |----------|----------|-----------------|-------------|
 | `data` | [`arma::mat`](../matrices.md) | [Column-major](../matrices.md#representing-data-in-mlpack) training matrix. | _(N/A)_ |
-| `labels` | [`arma::Row<size_t>`](../matrices.md) | Training labels, [between `0` and `numClasses - 1`](../load_save.md#normalizing-labels) (inclusive).  Should have length `data.n_cols`.  | _(N/A)_ |
+| `labels` | [`arma::Row<size_t>`](../matrices.md) | Training labels, [between `0` and `numClasses - 1`](../core/normalizing_labels.md) (inclusive).  Should have length `data.n_cols`.  | _(N/A)_ |
 | `numClasses` | `size_t` | Number of classes in the dataset. | _(N/A)_ |
 | `weakLearner` | `Perceptron` | An initialized weak learner whose hyperparameters will be used as settings for weak learners during training. | _(N/A)_ |
 | `maxIterations` | `size_t` | Maximum number of iterations of AdaBoost.MH to use.  This is the maximum number of weak learners to train.  (0 means no limit, and weak learners will be trained until the tolerance is met.) | `100` |
@@ -184,7 +184,7 @@ used to make class predictions for new data.
 ### Other Functionality
 
  * An `AdaBoost` model can be serialized with
-   [`data::Save()` and `data::Load()`](../load_save.md#mlpack-objects).
+   [`Save()` and `Load()`](../load_save.md#mlpack-models-and-objects).
 
  * `ab.NumClasses()` will return a `size_t` indicating the number of classes the
    model was trained on.
@@ -212,10 +212,10 @@ Train an AdaBoost model using the hyperparameters from an existing weak learner.
 ```c++
 // See https://datasets.mlpack.org/iris.csv.
 arma::mat dataset;
-mlpack::data::Load("iris.csv", dataset, true);
+mlpack::Load("iris.csv", dataset, mlpack::Fatal);
 // See https://datasets.mlpack.org/iris.labels.csv.
 arma::Row<size_t> labels;
-mlpack::data::Load("iris.labels.csv", labels, true);
+mlpack::Load("iris.labels.csv", labels, mlpack::Fatal);
 
 mlpack::AdaBoost ab;
 // Train with a custom number of perceptron iterations, and custom AdaBoost
@@ -242,10 +242,10 @@ trained model to disk.
 ```c++
 // See https://datasets.mlpack.org/iris.csv.
 arma::mat dataset;
-mlpack::data::Load("iris.csv", dataset, true);
+mlpack::Load("iris.csv", dataset, mlpack::Fatal);
 // See https://datasets.mlpack.org/iris.labels.csv.
 arma::Row<size_t> labels;
-mlpack::data::Load("iris.labels.csv", labels, true);
+mlpack::Load("iris.labels.csv", labels, mlpack::Fatal);
 
 mlpack::AdaBoost ab;
 ab.MaxIterations() = 50; // Use at most 50 weak learners.
@@ -255,7 +255,7 @@ ab.Tolerance() = 1e-4; // Set a custom tolerance for convergence.
 ab.Train(dataset, labels, 3);
 
 // Save the model to `adaboost_model.bin`.
-mlpack::data::Save("adaboost_model.bin", "adaboost_model", ab, true);
+mlpack::Save("adaboost_model.bin", ab, mlpack::Fatal);
 ```
 
 ---
@@ -265,7 +265,7 @@ Load an AdaBoost model and print some information about it.
 ```c++
 // Load a saved model named "adaboost_model" from `adaboost_model.bin`.
 mlpack::AdaBoost ab;
-mlpack::data::Load("adaboost_model.bin", "adaboost_model", ab, true);
+mlpack::Load("adaboost_model.bin", ab, mlpack::Fatal);
 
 std::cout << "Details about the model in `adaboost_model.bin`:" << std::endl;
 std::cout << "  - Trained on " << ab.NumClasses() << " classes." << std::endl;
@@ -418,9 +418,9 @@ arma::Row<size_t> labels =
 
 // Train in the constructor, using floating-point data.
 // The weak learner type is now a floating-point Perceptron.
-typedef mlpack::Perceptron<mlpack::SimpleWeightUpdate,
-                           mlpack::ZeroInitialization,
-                           arma::fmat> PerceptronType;
+using PerceptronType = mlpack::Perceptron<mlpack::SimpleWeightUpdate,
+                                          mlpack::ZeroInitialization,
+                                          arma::fmat>;
 mlpack::AdaBoost<PerceptronType, arma::fmat> ab(dataset, labels, 5);
 
 // Create test data (500 points).

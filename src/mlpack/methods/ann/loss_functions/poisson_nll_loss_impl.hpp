@@ -16,6 +16,8 @@
 // In case it hasn't yet been included.
 #include "poisson_nll_loss.hpp"
 
+#include <mlpack/core/util/log.hpp>
+
 namespace mlpack {
 
 template<typename MatType>
@@ -37,7 +39,7 @@ typename MatType::elem_type PoissonNLLLossType<MatType>::Forward(
     const MatType& prediction,
     const MatType& target)
 {
-  MatType loss(arma::size(prediction));
+  MatType loss(size(prediction));
 
   if (logInput)
     loss = exp(prediction) - target % prediction;
@@ -68,8 +70,6 @@ void PoissonNLLLossType<MatType>::Backward(
     const MatType& target,
     MatType& loss)
 {
-  loss.set_size(size(prediction));
-
   if (logInput)
     loss = (exp(prediction) - target);
   else

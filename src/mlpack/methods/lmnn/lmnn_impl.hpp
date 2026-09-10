@@ -103,7 +103,7 @@ void LMNN<DistanceType, DeprecatedOptimizerType>::LearnDistance(
   // having r x d dimensionality.
   if ((outputMatrix.n_cols != dataset.n_rows) ||
       (outputMatrix.n_rows > dataset.n_rows) ||
-      !(arma::is_finite(outputMatrix)))
+      !(outputMatrix.is_finite()))
   {
     outputMatrix.eye(dataset.n_rows, dataset.n_rows);
   }
@@ -115,7 +115,7 @@ void LMNN<DistanceType, DeprecatedOptimizerType>::LearnDistance(
 template<typename DistanceType, typename DeprecatedOptimizerType>
 template<typename Archive>
 void LMNN<DistanceType, DeprecatedOptimizerType>::serialize(
-    Archive& ar, const unsigned int /* version */)
+    Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(k));
   ar(CEREAL_NVP(regularization));

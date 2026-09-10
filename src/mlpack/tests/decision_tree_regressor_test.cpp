@@ -481,7 +481,7 @@ TEST_CASE("BestBinaryCategoricalSplitRegressionTwoPerfectTest",
   arma::vec splitInfo;
   MSEGain gainFn;
 
-  arma::vec data = randi<arma::vec>(N, arma::distr_param(0, K - 1));
+  arma::vec data = randi<arma::vec>(N, DistrParam(0, K - 1));
   arma::rowvec weights = arma::ones<arma::rowvec>(N);
   arma::rowvec response(N);
   for (size_t i = 0; i < N; ++i)
@@ -509,7 +509,7 @@ TEST_CASE("BestBinaryCategoricalSplitRegressionTwoPerfectTest",
   // one direction and the remaining Cⱼ to the other.
   arma::vec class1Data = arma::ones(N) * 2;
   arma::vec class1Direction(N);
-  arma::vec class0Data = randi<arma::vec>(N, arma::distr_param(3, K - 1));
+  arma::vec class0Data = randi<arma::vec>(N, DistrParam(3, K - 1));
   arma::vec class0Direction(N);
 
   for (size_t i = 0; i < N; ++i)
@@ -609,7 +609,7 @@ TEST_CASE("BestCategoricalBuildTest_", "[DecisionTreeRegressorTest]")
 {
   arma::mat d;
   arma::rowvec r;
-  data::DatasetInfo di;
+  DatasetInfo di;
   MockCategoricalData(d, r, di);
 
   // Split into a training set and a test set.
@@ -642,7 +642,7 @@ TEST_CASE("BestCategoricalWeightedBuildTest_", "[DecisionTreeRegressorTest]")
 {
   arma::mat d;
   arma::rowvec r;
-  data::DatasetInfo di;
+  DatasetInfo di;
   MockCategoricalData(d, r, di);
 
   // Split into a training set and a test set.
@@ -677,7 +677,7 @@ TEST_CASE("BestCategoricalNoisyWeightedBuildTest_",
 {
   arma::mat d;
   arma::rowvec r;
-  data::DatasetInfo di;
+  DatasetInfo di;
   MockCategoricalData(d, r, di);
 
   // Split into a training set and a test set.
@@ -962,19 +962,19 @@ TEST_CASE("MultiSplitTest3", "[DecisionTreeRegressorTest]")
 /**
  * Test that the tree builds correctly on unweighted numerical dataset.
  */
-TEST_CASE("NumericalBuildTest", "[DecisionTreeRegressorTest]")
+TEST_CASE("NumericalBuildTest", "[DecisionTreeRegressorTest][tiny]")
 {
   arma::mat X;
   arma::rowvec Y;
 
-  if (!data::Load("lars_dependent_x.csv", X))
+  if (!Load("lars_dependent_x.csv", X))
     FAIL("Cannot load dataset lars_dependent_x.csv");
-  if (!data::Load("lars_dependent_y.csv", Y))
+  if (!Load("lars_dependent_y.csv", Y))
     FAIL("Cannot load dataset lars_dependent_y.csv");
 
   arma::mat XTrain, XTest;
   arma::rowvec YTrain, YTest;
-  data::Split(X, Y, XTrain, XTest, YTrain, YTest, 0.3);
+  Split(X, Y, XTrain, XTest, YTrain, YTest, 0.3);
 
   DecisionTreeRegressor<> tree(XTrain, YTrain, 5);
 
@@ -989,19 +989,19 @@ TEST_CASE("NumericalBuildTest", "[DecisionTreeRegressorTest]")
 /**
  * Test that the tree builds correctly on weighted numerical dataset.
  */
-TEST_CASE("NumericalBuildTestWithWeights", "[DecisionTreeRegressorTest]")
+TEST_CASE("NumericalBuildTestWithWeights", "[DecisionTreeRegressorTest][tiny]")
 {
   arma::mat X;
   arma::rowvec Y;
 
-  if (!data::Load("lars_dependent_x.csv", X))
+  if (!Load("lars_dependent_x.csv", X))
     FAIL("Cannot load dataset lars_dependent_x.csv");
-  if (!data::Load("lars_dependent_y.csv", Y))
+  if (!Load("lars_dependent_y.csv", Y))
     FAIL("Cannot load dataset lars_dependent_y.csv");
 
   arma::mat XTrain, XTest;
   arma::rowvec YTrain, YTest;
-  data::Split(X, Y, XTrain, XTest, YTrain, YTest, 0.3);
+  Split(X, Y, XTrain, XTest, YTrain, YTest, 0.3);
 
   arma::rowvec weights = arma::ones<arma::rowvec>(XTrain.n_elem);
 
@@ -1018,11 +1018,11 @@ TEST_CASE("NumericalBuildTestWithWeights", "[DecisionTreeRegressorTest]")
 /**
  * Test that we can build a decision tree on a simple categorical dataset.
  */
-TEST_CASE("CategoricalBuildTest_", "[DecisionTreeRegressorTest]")
+TEST_CASE("CategoricalBuildTest_", "[DecisionTreeRegressorTest][tiny]")
 {
   arma::mat d;
   arma::rowvec r;
-  data::DatasetInfo di;
+  DatasetInfo di;
   MockCategoricalData(d, r, di);
 
   // Split into a training set and a test set.
@@ -1049,11 +1049,12 @@ TEST_CASE("CategoricalBuildTest_", "[DecisionTreeRegressorTest]")
  * Test that we can build a decision tree with weights on a simple categorical
  * dataset.
  */
-TEST_CASE("CategoricalBuildTestWithWeight_", "[DecisionTreeRegressorTest]")
+TEST_CASE("CategoricalBuildTestWithWeight_",
+    "[DecisionTreeRegressorTest][tiny]")
 {
   arma::mat d;
   arma::rowvec r;
-  data::DatasetInfo di;
+  DatasetInfo di;
   MockCategoricalData(d, r, di);
 
   // Split into a training set and a test set.
@@ -1087,7 +1088,7 @@ TEST_CASE("CategoricalWeightedBuildTest_", "[DecisionTreeRegressorTest]")
 {
   arma::mat d;
   arma::rowvec r;
-  data::DatasetInfo di;
+  DatasetInfo di;
   MockCategoricalData(d, r, di);
 
   // Split into a training set and a test set.
@@ -1141,7 +1142,7 @@ TEST_CASE("CategoricalMADGainWeightedBuildTest", "[DecisionTreeRegressorTest]")
 {
   arma::mat d;
   arma::rowvec r;
-  data::DatasetInfo di;
+  DatasetInfo di;
   MockCategoricalData(d, r, di);
 
   // Split into a training set and a test set.
@@ -1194,14 +1195,14 @@ TEST_CASE("CategoricalMADGainWeightedBuildTest", "[DecisionTreeRegressorTest]")
 TEMPLATE_TEST_CASE("SimpleGeneralizationTest_",
     "[DecisionTreeRegressorTest]", float, double)
 {
-  typedef TestType ElemType;
+  using ElemType = TestType;
 
   // Allow three trials.
   bool success = false;
   for (size_t trial = 0; trial < 3; ++trial)
   {
     // Loading data.
-    data::DatasetInfo info;
+    DatasetInfo info;
     arma::Mat<ElemType> trainData, testData;
     arma::Row<ElemType> trainResponses, testResponses;
     LoadBostonHousingDataset(trainData, testData, trainResponses, testResponses,
@@ -1254,7 +1255,7 @@ TEST_CASE("WeightedDecisionTreeTest_", "[DecisionTreeRegressorTest]")
   for (size_t trial = 0; trial < 3; ++trial)
   {
     // Loading data.
-    data::DatasetInfo info;
+    DatasetInfo info;
     arma::mat trainData, testData;
     arma::rowvec trainResponses, testResponses;
     LoadBostonHousingDataset(trainData, testData, trainResponses, testResponses,
@@ -1309,7 +1310,7 @@ TEST_CASE("WeightedDecisionTreeMADGainTest", "[DecisionTreeRegressorTest]")
   for (size_t trial = 0; trial < 5; ++trial)
   {
     // Loading data.
-    data::DatasetInfo info;
+    DatasetInfo info;
     arma::mat trainData, testData;
     arma::rowvec trainResponses, testResponses;
     LoadBostonHousingDataset(trainData, testData, trainResponses, testResponses,

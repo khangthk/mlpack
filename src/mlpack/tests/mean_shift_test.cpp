@@ -56,9 +56,10 @@ MatType GetMeanShiftData()
 /**
  * 30-point 3-class test case for Mean Shift.
  */
-TEMPLATE_TEST_CASE("MeanShiftSimpleTest", "[MeanShiftTest]", float, double)
+TEMPLATE_TEST_CASE("MeanShiftSimpleTest", "[MeanShiftTest][tiny]", float,
+    double)
 {
-  typedef TestType ElemType;
+  using ElemType = TestType;
 
   MeanShift<> meanShift;
 
@@ -95,7 +96,7 @@ TEMPLATE_TEST_CASE("MeanShiftSimpleTest", "[MeanShiftTest]", float, double)
 TEMPLATE_TEST_CASE("MeanShiftSimpleCentroidsOnlyTest", "[MeanShiftTest]", float,
     double)
 {
-  typedef TestType ElemType;
+  using ElemType = TestType;
 
   MeanShift<> meanShift;
 
@@ -110,8 +111,8 @@ TEMPLATE_TEST_CASE("MeanShiftSimpleCentroidsOnlyTest", "[MeanShiftTest]", float,
 // recovers those four centers.
 TEMPLATE_TEST_CASE("GaussianClustering", "[MeanShiftTest]", float, double)
 {
-  typedef TestType ElemType;
-  typedef typename arma::Mat<ElemType> MatType;
+  using ElemType = TestType;
+  using MatType = arma::Mat<ElemType>;
 
   GaussianDistribution<MatType> g1("0.0 0.0 0.0", arma::eye<MatType>(3, 3));
   GaussianDistribution<MatType> g2("5.0 5.0 5.0", 2 * arma::eye<MatType>(3, 3));
@@ -120,9 +121,12 @@ TEMPLATE_TEST_CASE("GaussianClustering", "[MeanShiftTest]", float, double)
       3 * arma::eye<MatType>(3, 3));
 
   // We may need to run this multiple times, because sometimes it may converge
-  // to the wrong number of clusters.
+  // to the wrong number of clusters.  The probability of an individual trial
+  // failing is about 15%, so allowing 8 trials gives a failure probability of
+  // 2.56e-5%.  (Yes, that is a huge number of trials, but we want the failure
+  // probability to be very low.)
   bool success = false;
-  for (size_t trial = 0; trial < 4; ++trial)
+  for (size_t trial = 0; trial < 8; ++trial)
   {
     MatType dataset(3, 4000);
     for (size_t i = 0; i < 1000; ++i)
@@ -163,7 +167,8 @@ TEMPLATE_TEST_CASE("GaussianClustering", "[MeanShiftTest]", float, double)
           centroids.col(i));
 
       // Are we near a centroid of a Gaussian?
-      const ElemType minVal = centroidDistances.min(minIndices[i]);
+      minIndices[i] = centroidDistances.index_min();
+      const ElemType minVal = centroidDistances(minIndices[i]);
       success = (std::abs(minVal) <= 0.65);
       if (!success)
         break;
@@ -188,8 +193,8 @@ TEMPLATE_TEST_CASE("GaussianClustering", "[MeanShiftTest]", float, double)
 TEMPLATE_TEST_CASE("GaussianClusteringCentroidsOnly", "[MeanShiftTest]", float,
     double)
 {
-  typedef TestType ElemType;
-  typedef typename arma::Mat<ElemType> MatType;
+  using ElemType = TestType;
+  using MatType = arma::Mat<ElemType>;
 
   GaussianDistribution<MatType> g1("0.0 0.0 0.0", arma::eye<MatType>(3, 3));
   GaussianDistribution<MatType> g2("5.0 5.0 5.0", 2 * arma::eye<MatType>(3, 3));
@@ -198,9 +203,12 @@ TEMPLATE_TEST_CASE("GaussianClusteringCentroidsOnly", "[MeanShiftTest]", float,
       3 * arma::eye<MatType>(3, 3));
 
   // We may need to run this multiple times, because sometimes it may converge
-  // to the wrong number of clusters.
+  // to the wrong number of clusters.  The probability of an individual trial
+  // failing is about 15%, so allowing 8 trials gives a failure probability of
+  // 2.56e-5%.  (Yes, that is a huge number of trials, but we want the failure
+  // probability to be very low.)
   bool success = false;
-  for (size_t trial = 0; trial < 4; ++trial)
+  for (size_t trial = 0; trial < 8; ++trial)
   {
     MatType dataset(3, 4000);
     for (size_t i = 0; i < 1000; ++i)
@@ -240,7 +248,8 @@ TEMPLATE_TEST_CASE("GaussianClusteringCentroidsOnly", "[MeanShiftTest]", float,
           centroids.col(i));
 
       // Are we near a centroid of a Gaussian?
-      const ElemType minVal = centroidDistances.min(minIndices[i]);
+      minIndices[i] = centroidDistances.index_min();
+      const ElemType minVal = centroidDistances(minIndices[i]);
       success = (std::abs(minVal) <= 0.65);
       if (!success)
         break;

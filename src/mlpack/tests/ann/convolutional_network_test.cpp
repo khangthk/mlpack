@@ -72,6 +72,8 @@ TEST_CASE("PaddingTest", "[ConvolutionalNetworktest]")
 {
   arma::mat X;
   X.load("mnist_first250_training_4s_and_9s.csv");
+  // Make sure the data loaded okay.
+  REQUIRE(!X.is_empty());
 
   // Create the network.
   FFN<NegativeLogLikelihood, RandomInitialization> model;
@@ -145,10 +147,12 @@ TEST_CASE("MaxPoolingTest", "[ConvolutionalNetworkTest]")
 /**
  * Train the vanilla network on a larger dataset.
  */
-TEST_CASE("VanillaNetworkTest", "[ConvolutionalNetworkTest]")
+TEST_CASE("VanillaNetworkTest", "[ConvolutionalNetworkTest][long]")
 {
   arma::mat X;
   X.load("mnist_first250_training_4s_and_9s.csv");
+  // Make sure the data loaded okay.
+  REQUIRE(!X.is_empty());
 
   // Normalize each point since these are images.
   arma::uword nPoints = X.n_cols;
@@ -244,7 +248,7 @@ TEST_CASE("VanillaNetworkTest", "[ConvolutionalNetworkTest]")
   REQUIRE(success == true);
 }
 
-TEST_CASE("VanillaNetworkBatchSizeTest", "[ConvolutionalNetworkTest]")
+TEST_CASE("VanillaNetworkBatchSizeTest", "[ConvolutionalNetworkTest][long]")
 {
   FFN<NegativeLogLikelihood, RandomInitialization> model;
 
@@ -265,6 +269,8 @@ TEST_CASE("VanillaNetworkBatchSizeTest", "[ConvolutionalNetworkTest]")
 
   arma::mat X;
   X.load("mnist_first250_training_4s_and_9s.csv");
+  // Make sure the data loaded okay.
+  REQUIRE(!X.is_empty());
 
   // Normalize each point since these are images.
   arma::uword nPoints = X.n_cols;
@@ -344,10 +350,12 @@ TEST_CASE("VanillaNetworkBatchSizeTest", "[ConvolutionalNetworkTest]")
 /**
  * Train the vanilla network on a larger dataset.
  */
-TEST_CASE("CheckCopyVanillaNetworkTest", "[ConvolutionalNetworkTest]")
+TEST_CASE("CheckCopyVanillaNetworkTest", "[ConvolutionalNetworkTest][long]")
 {
   arma::mat X;
   X.load("mnist_first250_training_4s_and_9s.csv");
+  // Make sure the data loaded okay.
+  REQUIRE(!X.is_empty());
 
   // Normalize each point since these are images.
   arma::uword nPoints = X.n_cols;
@@ -434,7 +442,7 @@ TEST_CASE("CheckCopyVanillaNetworkTest", "[ConvolutionalNetworkTest]")
   CheckMoveFunction<>(model1, X, Y, 8);
 }
 
-TEST_CASE("Issue2986", "[ConvolutionalNetworkTest]")
+TEST_CASE("Issue2986", "[ConvolutionalNetworkTest][tiny]")
 {
   // Ensure that the code snippet in issue #2986 succeeds without any issues.
   arma::mat input, output, delta;

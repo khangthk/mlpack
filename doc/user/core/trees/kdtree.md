@@ -1,10 +1,9 @@
 # `KDTree`
 
-<!-- TODO: link to knn.md once it's done -->
-
 The `KDTree` class represents a `k`-dimensional binary space partitioning tree,
 and is a well-known data structure for efficient distance operations (such as
-nearest neighbor search) in low dimensions---typically less than 100.
+[nearest neighbor search](../../methods/knn.md)) in low dimensions---typically
+less than 100.
 
 mlpack's `KDTree` implementation supports three template parameters for
 configurable behavior, and implements all the functionality required by the
@@ -20,12 +19,13 @@ additional functionality specific to kd-trees.
 
 ## See also
 
-<!-- TODO: add links to all distance-based algorithms and other trees? -->
-
  * [kd-tree on Wikipedia](https://en.wikipedia.org/wiki/Kd-tree)
  * [`BinarySpaceTree`](binary_space_tree.md)
- * [Binary space partitioning on Wikipedia](https://dl.acm.org/doi/pdf/10.1145/361002.361007)
- * [original kd-tree paper (pdf)](https://dl.acm.org/doi/pdf/10.1145/361002.361007)
+ * [mlpack trees](../trees.md)
+ * [`KNN`](../../methods/knn.md)
+ * [mlpack geometric algorithms](../../modeling.md#geometric-algorithms)
+ * [Binary space partitioning on Wikipedia](https://en.wikipedia.org/wiki/Binary_space_partitioning)
+ * [original kd-tree paper (pdf)](https://www.cs.cmu.edu/~christos/courses/826-resources/PAPERS+BOOK/p509-bentley.pdf)
  * [Tree-Independent Dual-Tree Algorithms (pdf)](https://www.ratml.org/pub/pdf/2013tree.pdf)
 
 ## Template parameters
@@ -57,6 +57,12 @@ The `KDTree` class itself is a convenience typedef of the generic
 and using the [`MidpointSplit`](binary_space_tree.md#midpointsplit) splitting
 strategy for construction, which splits a node in the dimension of maximum
 variance on the midpoint of the bound's range in that dimension.
+
+If no template parameters are explicitly specified, then defaults are used:
+
+```
+KDTree<> = KDTree<EuclideanDistance, EmptyStatistic, arma::mat>
+```
 
 ## Constructors
 
@@ -119,12 +125,11 @@ different.
    not supported, because this generally results in a kd-tree with very loose
    bounding boxes.  It is better to simply build a new `KDTree` on the modified
    dataset.  For trees that support individual insertion and deletions, see the
-   `RectangleTree` class and all its variants (e.g. `RTree`, `RStarTree`, etc.).
+   [`RectangleTree`](rectangle_tree.md) class and all its variants (e.g.
+   [`RTree`](r_tree.md), [`RStarTree`](r_star_tree.md), etc.).
 
  - See also the
    [developer documentation on tree constructors](../../../developer/trees.md#constructors-and-destructors).
-
-<!-- TODO: add links to RectangleTree above when it is documented -->
 
 ---
 
@@ -262,7 +267,7 @@ accessing them does not require any computation.
    distance between the center of the bounding hyperrectangle of `node` and the
    furthest descendant point held by `node`.
 
- * `node.MinimumBoundDistance()` returns a `double` representing minimum
+ * `node.MinimumBoundDistance()` returns a `double` representing the minimum
    possible distance from the center of the node to any edge of the
    hyperrectangle bound.
    - This quantity is half the width of the smallest dimension of
@@ -299,7 +304,7 @@ accessing them does not require any computation.
    - This is equivalent to calling `node.Bound().Center(center)`.
 
  * A `KDTree` can be serialized with
-   [`data::Save()` and `data::Load()`](../../load_save.md#mlpack-objects).
+   [`Save()` and `Load()`](../../load_save.md#mlpack-models-and-objects).
 
 ## Bounding distances with the tree
 
@@ -372,7 +377,7 @@ nodes.  The following functions can be used for these tasks.
      `arma::fmat`, and the returned type is
      [`RangeType<float>`](../math.md#range)).
 
-### Tree traversals
+## Tree traversals
 
 Like every mlpack tree, the `KDTree` class provides a [single-tree and dual-tree
 traversal](../../../developer/trees.md#traversals) that can be paired with a
@@ -404,7 +409,7 @@ tree.
 ```c++
 // See https://datasets.mlpack.org/cloud.csv.
 arma::mat dataset;
-mlpack::data::Load("cloud.csv", dataset, true);
+mlpack::Load("cloud.csv", dataset, mlpack::Fatal);
 
 // Build the kd-tree with a leaf size of 10.  (This means that nodes are split
 // until they contain 10 or fewer points.)
@@ -414,7 +419,7 @@ mlpack::data::Load("cloud.csv", dataset, true);
 //
 // Note that the '<>' isn't necessary if C++20 is being used (e.g.
 // `mlpack::KDTree tree(...)` will work fine in C++20 or newer).
-mlpack::KDTree<> tree(std::move(dataset));
+mlpack::KDTree<> tree(std::move(dataset), 10);
 
 // Print the bounding box of the root node.
 std::cout << "Bounding box of root node:" << std::endl;
@@ -449,7 +454,7 @@ maximum distances between different nodes in the tree.
 ```c++
 // See https://datasets.mlpack.org/corel-histogram.csv.
 arma::mat dataset;
-mlpack::data::Load("corel-histogram.csv", dataset, true);
+mlpack::Load("corel-histogram.csv", dataset, mlpack::Fatal);
 
 // Build kd-trees on the first half and the second half of points.
 mlpack::KDTree<> tree1(dataset.cols(0, dataset.n_cols / 2));
@@ -515,7 +520,7 @@ Build a `KDTree` on 32-bit floating point data and save it to disk.
 ```c++
 // See https://datasets.mlpack.org/corel-histogram.csv.
 arma::fmat dataset;
-mlpack::data::Load("corel-histogram.csv", dataset);
+mlpack::Load("corel-histogram.csv", dataset);
 
 // Build the KDTree using 32-bit floating point data as the matrix type.
 // We will still use the default EmptyStatistic and EuclideanDistance
@@ -525,7 +530,7 @@ mlpack::KDTree<mlpack::EuclideanDistance,
                arma::fmat> tree(std::move(dataset), 100);
 
 // Save the KDTree to disk with the name 'tree'.
-mlpack::data::Save("tree.bin", "tree", tree);
+mlpack::Save("tree.bin", tree);
 
 std::cout << "Saved tree with " << tree.Dataset().n_cols << " points to "
     << "'tree.bin'." << std::endl;
@@ -534,19 +539,19 @@ std::cout << "Saved tree with " << tree.Dataset().n_cols << " points to "
 ---
 
 Load a 32-bit floating point `KDTree` from disk, then traverse it manually and
-find the number of leaf nodes with fewer than 10 children.
+find the number of leaf nodes with fewer than 10 points.
 
 ```c++
 // This assumes the tree has already been saved to 'tree.bin' (as in the example
 // above).
 
 // This convenient typedef saves us a long type name!
-typedef mlpack::KDTree<mlpack::EuclideanDistance,
-                       mlpack::EmptyStatistic,
-                       arma::fmat> TreeType;
+using TreeType = mlpack::KDTree<mlpack::EuclideanDistance,
+                                mlpack::EmptyStatistic,
+                                arma::fmat>;
 
 TreeType tree;
-mlpack::data::Load("tree.bin", "tree", tree);
+mlpack::Load("tree.bin", tree);
 std::cout << "Tree loaded with " << tree.NumDescendants() << " points."
     << std::endl;
 
@@ -589,7 +594,7 @@ Build a `KDTree` and map between original points and new points.
 ```c++
 // See https://datasets.mlpack.org/cloud.csv.
 arma::mat dataset;
-mlpack::data::Load("cloud.csv", dataset, true);
+mlpack::Load("cloud.csv", dataset, mlpack::Fatal);
 
 // Build the tree.
 std::vector<size_t> oldFromNew, newFromOld;

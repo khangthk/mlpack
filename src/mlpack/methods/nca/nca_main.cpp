@@ -97,7 +97,8 @@ BINDING_SEE_ALSO("@lmnn", "#lmnn");
 BINDING_SEE_ALSO("Neighbourhood components analysis on Wikipedia",
     "https://en.wikipedia.org/wiki/Neighbourhood_components_analysis");
 BINDING_SEE_ALSO("Neighbourhood components analysis (pdf)",
-    "http://papers.nips.cc/paper/2566-neighbourhood-components-analysis.pdf");
+    "https://proceedings.neurips.cc/paper_files/paper/2004/file/"
+    "42fe880812925e520249e808937738d2-Paper.pdf");
 BINDING_SEE_ALSO("NCA C++ class documentation", "@doc/user/methods/nca.md");
 
 PARAM_MATRIX_IN_REQ("input", "Input dataset to run NCA on.", "i");
@@ -216,7 +217,7 @@ void BINDING_FUNCTION(util::Params& params, util::Timers& timers)
   // Now, normalize the labels.
   arma::Col<size_t> mappings;
   arma::Row<size_t> labels;
-  data::NormalizeLabels(rawLabels, labels, mappings);
+  NormalizeLabels(rawLabels, labels, mappings);
 
   arma::mat distance;
 

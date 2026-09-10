@@ -72,9 +72,9 @@ BINDING_LONG_DESC(
 BINDING_EXAMPLE(
     IMPORT_EXT_LIB() + "\n" +
     IMPORT_SPLIT() + "\n" +
-    IMPORT_THIS("adaboost") + "\n" +
-    GET_DATASET("X", "https://example.com") + "\n" +
-    GET_DATASET("y", "https://example.com") + "\n" +
+    IMPORT_THIS("adaboost", "train", "classify", "probabilities") + "\n" +
+    GET_DATASET("X", "http://datasets.mlpack.org/iris.csv") + "\n" +
+    GET_DATASET("y", "http://datasets.mlpack.org/iris_labels.csv") + "\n" +
     SPLIT_TRAIN_TEST("X", "y", "X_train", "y_train", "X_test", "y_test",
     "0.2") + "\n" +
     CREATE_OBJECT("model", "adaboost") + "\n" +
@@ -84,7 +84,7 @@ BINDING_EXAMPLE(
 BINDING_SEE_ALSO("AdaBoost on Wikipedia", "https://en.wikipedia.org/wiki/"
     "AdaBoost");
 BINDING_SEE_ALSO("Improved boosting algorithms using confidence-rated "
-    "predictions (pdf)", "http://rob.schapire.net/papers/SchapireSi98.pdf");
+    "predictions (pdf)", "http://www.schapire.net/papers/SchapireSi98.pdf");
 BINDING_SEE_ALSO("Perceptron", "#perceptron");
 BINDING_SEE_ALSO("Decision Trees", "#decision_tree");
 BINDING_SEE_ALSO("AdaBoost C++ class documentation",
@@ -157,7 +157,7 @@ void BINDING_FUNCTION(util::Params& params, util::Timers& timers)
   Row<size_t> labels;
 
   // Normalize the labels.
-  data::NormalizeLabels(labelsIn, labels, m->Mappings());
+  NormalizeLabels(labelsIn, labels, m->Mappings());
 
   // Get other training parameters.
   const double tolerance = params.Get<double>("tolerance");

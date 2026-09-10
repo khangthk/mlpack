@@ -20,6 +20,7 @@ including:
 
 <!-- TODO: better names for each link -->
 
+ * [`KNN`](../methods/knn.md)
  * [`NeighborSearch`](/src/mlpack/methods/neighbor_search/neighbor_search.hpp)
  * [`RangeSearch`](/src/mlpack/methods/range_search/range_search.hpp)
  * [`LMNN`](../methods/lmnn.md)
@@ -31,7 +32,7 @@ including:
 ## `LMetric`
 
 The `LMetric` template class implements a [generalized
-L-metric](https://en.wikipedia.org/wiki/Lp_space#Definition)
+L-metric](https://en.wikipedia.org/wiki/Lp_space#Preliminaries)
 (L1-metric, L2-metric, etc.).  The class has two template parameters:
 
 ```

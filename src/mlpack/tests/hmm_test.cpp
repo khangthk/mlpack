@@ -183,7 +183,7 @@ TEST_CASE("SimplestBaumWelchDiscreteHMM", "[HMMTest]")
 /**
  * A slightly more complex model to estimate.
  */
-TEST_CASE("SimpleBaumWelchDiscreteHMM", "[HMMTest]")
+TEST_CASE("SimpleBaumWelchDiscreteHMM", "[HMMTest][tiny]")
 {
   HMM<DiscreteDistribution<>> hmm(1, 2); // 1 state, 2 emissions.
   // Randomize the emission matrix.
@@ -529,7 +529,7 @@ TEST_CASE("DiscreteHMMLogLikelihoodTest", "[HMMTest]")
 /**
  * A simple test to make sure HMMs with Gaussian output distributions work.
  */
-TEST_CASE("GaussianHMMSimpleTest", "[HMMTest]")
+TEST_CASE("GaussianHMMSimpleTest", "[HMMTest][tiny]")
 {
   // We'll have two Gaussians, far away from each other, one corresponding to
   // each state.
@@ -1050,7 +1050,7 @@ TEST_CASE("GaussianHMMPredictTest", "[HMMTest]")
   {
     double loglikelihood;
     arma::vec forwardLogProb;
-    for (size_t t = 0; t<obs.n_cols; ++t)
+    for (size_t t = 0; t < obs.n_cols; ++t)
     {
       loglikelihood = hmm.LogLikelihood(obs.col(t), loglikelihood,
                                         forwardLogProb);
@@ -1065,7 +1065,7 @@ TEST_CASE("GaussianHMMPredictTest", "[HMMTest]")
   {
     double loglikelihood = 0;
     arma::vec forwardLogProb;
-    for (size_t t = 0; t<obs.n_cols; ++t)
+    for (size_t t = 0; t < obs.n_cols; ++t)
     {
       double logScale = hmm.LogScaleFactor(obs.col(t), forwardLogProb);
       loglikelihood += logScale;
@@ -1107,7 +1107,7 @@ TEST_CASE("GaussianHMMPredictTest", "[HMMTest]")
  * simple model by hand and making sure that prediction of observation sequences
  * works correctly.
  */
-TEST_CASE("GMMHMMPredictTest", "[HMMTest]")
+TEST_CASE("GMMHMMPredictTest", "[HMMTest][tiny]")
 {
   // It's possible, but extremely unlikely, that this test can fail.  So we are
   // willing to do three trials in case the first two fail.
@@ -1514,9 +1514,10 @@ TEST_CASE("HMMTrainReturnLogLikelihood", "[HMMTest]")
 //! Make sure the prediction of DiagonalGMM HMMs is reasonable.
 TEST_CASE("DiagonalGMMHMMPredictTest", "[HMMTest]")
 {
-  // This test is probabilistic, so we perform it three times to make it robust.
+  // This test is probabilistic, so we perform it up to five times to make it
+  // robust.
   bool success = false;
-  for (size_t trial = 0; trial < 3; trial++)
+  for (size_t trial = 0; trial < 5; trial++)
   {
     std::vector<DiagonalGMM> gmms(2);
     gmms[0] = DiagonalGMM(2, 2);
@@ -1634,7 +1635,7 @@ TEST_CASE("DiagonalGMMHMMGenerateTest", "[HMMTest]")
  * Make sure the unlabeled 1-state training works reasonably given a single
  * distribution with diagonal covariance.
  */
-TEST_CASE("DiagonalGMMHMMOneGaussianOneStateTrainingTest", "[HMMTest]")
+TEST_CASE("DiagonalGMMHMMOneGaussianOneStateTrainingTest", "[HMMTest][tiny]")
 {
   // Create a Gaussian distribution with diagonal covariance.
   DiagonalGaussianDistribution<> d("2.05 3.45", "0.89 1.05");

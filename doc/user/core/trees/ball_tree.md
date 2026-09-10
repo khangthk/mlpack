@@ -1,11 +1,9 @@
 # `BallTree`
 
-<!-- TODO: link to knn.md once it's done -->
-
 The `BallTree` class represents a `k`-dimensional binary space partitioning tree
 where each node contains points within a ball.  This is a well-known data
-structure for efficient distance operations (such as nearest neighbor search) in
-low to moderate dimensions.
+structure for efficient distance operations (such as
+[nearest neighbor search](../../methods/knn.md)) in low to moderate dimensions.
 
 mlpack's `BallTree` implementation supports three template parameters for
 configurable behavior, and implements all the functionality required by the
@@ -33,11 +31,12 @@ with [`KDTree`](kdtree.md) first.
 
 ## See also
 
-<!-- TODO: add links to all distance-based algorithms and other trees? -->
-
  * [Ball tree on Wikipedia](https://en.wikipedia.org/wiki/Ball_tree)
  * [`BinarySpaceTree`](binary_space_tree.md)
- * [Binary space partitioning on Wikipedia](https://dl.acm.org/doi/pdf/10.1145/361002.361007)
+ * [mlpack trees](../trees.md)
+ * [`KNN`](../../methods/knn.md)
+ * [mlpack geometric algorithms](../../modeling.md#geometric-algorithms)
+ * [Binary space partitioning on Wikipedia](https://en.wikipedia.org/wiki/Binary_space_partitioning)
  * [Tree-Independent Dual-Tree Algorithms (pdf)](https://www.ratml.org/pub/pdf/2013tree.pdf)
 
 ## Template parameters
@@ -68,6 +67,12 @@ The `BallTree` class itself is a convenience typedef of the generic
 and using the [`MidpointSplit`](binary_space_tree.md#midpointsplit) splitting
 strategy for construction, which splits a node in the dimension of maximum
 variance on the midpoint of the bound's range in that dimension.
+
+If no template parameters are explicitly specified, then defaults are used:
+
+```
+BallTree<> = BallTree<EuclideanDistance, EmptyStatistic, arma::mat>
+```
 
 ## Constructors
 
@@ -135,13 +140,11 @@ different.
    is not supported, because this generally results in a ball tree with very
    loose bounding balls.  It is better to simply build a new `BallTree` on the
    modified dataset.  For trees that support individual insertion and deletions,
-   see the `RectangleTree` class and all its variants (e.g. `RTree`,
-   `RStarTree`, etc.).
+   see the [`RectangleTree`](rectangle_tree.md) class and all its variants (e.g.
+   [`RTree`](r_tree.md), [`RStarTree`](r_star_tree.md), etc.).
 
  - See also the
    [developer documentation on tree constructors](../../../developer/trees.md#constructors-and-destructors).
-
-<!-- TODO: add links to RectangleTree above when it is documented -->
 
 ---
 
@@ -183,7 +186,7 @@ API](../../../developer/trees.md#the-treetype-api).
 
 ### Accessing members of a tree
 
- * `node.Bound()` will return an
+ * `node.Bound()` will return a
    [`BallBound&`](binary_space_tree.md#ballbound) object that represents the
    bounding ball of `node`.  This may not be the smallest possible bounding ball
    that encloses all the descendant points of `node`, but it is a reasonably
@@ -277,14 +280,13 @@ accessing them does not require any computation.
    descendant point held by `node`.
    - This will be less than or equal to `node.Radius()`.
 
- * `node.MinimumBoundDistance()` returns a `double` representing minimum
-   possible distance from the center of the node to any edge of the
-   hyperrectangle bound.
+ * `node.MinimumBoundDistance()` returns a `double` representing the minimum
+   possible distance from the center of the node to the edge of the ball bound.
    - This is equivalent to `node.Bound().Radius()`.
 
  * `node.ParentDistance()` returns a `double` representing the distance between
-   the center of the bounding hyperrectangle of `node` and the center of the
-   bounding hyperrectangle of its parent.
+   the center of the bounding ball of `node` and the center of the bounding ball
+   of its parent.
    - If `node` is the root of the tree, `0` is returned.
 
 ***Notes:***
@@ -313,7 +315,7 @@ accessing them does not require any computation.
    - This is equivalent to calling `node.Bound().Center(center)`.
 
  * A `BallTree` can be serialized with
-   [`data::Save()` and `data::Load()`](../../load_save.md#mlpack-objects).
+   [`Save()` and `Load()`](../../load_save.md#mlpack-models-and-objects).
 
 ## Bounding distances with the tree
 
@@ -348,9 +350,9 @@ nodes.  The following functions can be used for these tasks.
    - Return a `double` indicating the minimum possible distance between `node`
      and `point`, or the `BallTree` node `other`.
    - This is equivalent to the minimum possible distance between any point
-     contained in the bounding hyperrectangle of `node` and `point`, or between
-     any point contained in the bounding hyperrectangle of `node` and any point
-     contained in the bounding hyperrectangle of `other`.
+     contained in the bounding ball of `node` and `point`, or between any point
+     contained in the bounding ball of `node` and any point contained in the
+     bounding ball of `other`.
    - `point` should be of type `arma::vec`.  (If a [custom
      `MatType`](#template-parameters) was specified when constructing the
      `BallTree`, the type is instead the column vector type for the given
@@ -363,9 +365,9 @@ nodes.  The following functions can be used for these tasks.
    - Return a `double` indicating the maximum possible distance between `node`
      and `point`, or the `BallTree` node `other`.
    - This is equivalent to the maximum possible distance between any point
-     contained in the bounding hyperrectangle of `node` and `point`, or between
-     any point contained in the bounding hyperrectangle of `node` and any point
-     contained in the bounding hyperrectangle of `other`.
+     contained in the bounding ball of `node` and `point`, or between any point
+     contained in the bounding ball of `node` and any point contained in the
+     bounding ball of `other`.
    - `point` should be of type `arma::vec`.  (If a [custom
      `MatType`](#template-parameters) was specified when constructing the
      `BallTree`, the type is instead the column vector type for the given
@@ -386,7 +388,7 @@ nodes.  The following functions can be used for these tasks.
      `arma::fmat`, and the returned type is
      [`RangeType<float>`](../math.md#range)).
 
-### Tree traversals
+## Tree traversals
 
 Like every mlpack tree, the `BallTree` class provides a [single-tree and
 dual-tree traversal](../../../developer/trees.md#traversals) that can be paired
@@ -418,7 +420,7 @@ tree.
 ```c++
 // See https://datasets.mlpack.org/cloud.csv.
 arma::mat dataset;
-mlpack::data::Load("cloud.csv", dataset, true);
+mlpack::Load("cloud.csv", dataset, mlpack::Fatal);
 
 // Build the ball tree with a leaf size of 10.  (This means that nodes are split
 // until they contain 10 or fewer points.)
@@ -428,7 +430,7 @@ mlpack::data::Load("cloud.csv", dataset, true);
 //
 // Note that the '<>' isn't necessary if C++20 is being used (e.g.
 // `mlpack::BallTree tree(...)` will work fine in C++20 or newer).
-mlpack::BallTree<> tree(std::move(dataset));
+mlpack::BallTree<> tree(std::move(dataset), 10);
 
 // Print the bounding ball of the root node.
 std::cout << "Bounding ball of root node:" << std::endl;
@@ -455,7 +457,7 @@ maximum distances between different nodes in the tree.
 ```c++
 // See https://datasets.mlpack.org/corel-histogram.csv.
 arma::mat dataset;
-mlpack::data::Load("corel-histogram.csv", dataset, true);
+mlpack::Load("corel-histogram.csv", dataset, mlpack::Fatal);
 
 // Build ball trees on the first half and the second half of points.
 mlpack::BallTree<> tree1(dataset.cols(0, dataset.n_cols / 2));
@@ -521,7 +523,7 @@ Build a `BallTree` on 32-bit floating point data and save it to disk.
 ```c++
 // See https://datasets.mlpack.org/corel-histogram.csv.
 arma::fmat dataset;
-mlpack::data::Load("corel-histogram.csv", dataset);
+mlpack::Load("corel-histogram.csv", dataset);
 
 // Build the BallTree using 32-bit floating point data as the matrix type.
 // We will still use the default EmptyStatistic and EuclideanDistance
@@ -531,7 +533,7 @@ mlpack::BallTree<mlpack::EuclideanDistance,
                  arma::fmat> tree(std::move(dataset), 100);
 
 // Save the BallTree to disk with the name 'tree'.
-mlpack::data::Save("tree.bin", "tree", tree);
+mlpack::Save("tree.bin", tree);
 
 std::cout << "Saved tree with " << tree.Dataset().n_cols << " points to "
     << "'tree.bin'." << std::endl;
@@ -540,19 +542,19 @@ std::cout << "Saved tree with " << tree.Dataset().n_cols << " points to "
 ---
 
 Load a 32-bit floating point `BallTree` from disk, then traverse it manually and
-find the number of leaf nodes with fewer than 10 children.
+find the number of leaf nodes with fewer than 10 points.
 
 ```c++
 // This assumes the tree has already been saved to 'tree.bin' (as in the example
 // above).
 
 // This convenient typedef saves us a long type name!
-typedef mlpack::BallTree<mlpack::EuclideanDistance,
-                         mlpack::EmptyStatistic,
-                         arma::fmat> TreeType;
+using TreeType = mlpack::BallTree<mlpack::EuclideanDistance,
+                                  mlpack::EmptyStatistic,
+                                  arma::fmat>;
 
 TreeType tree;
-mlpack::data::Load("tree.bin", "tree", tree);
+mlpack::Load("tree.bin", tree);
 std::cout << "Tree loaded with " << tree.NumDescendants() << " points."
     << std::endl;
 
@@ -595,7 +597,7 @@ Build a `BallTree` and map between original points and new points.
 ```c++
 // See https://datasets.mlpack.org/cloud.csv.
 arma::mat dataset;
-mlpack::data::Load("cloud.csv", dataset, true);
+mlpack::Load("cloud.csv", dataset, mlpack::Fatal);
 
 // Build the tree.
 std::vector<size_t> oldFromNew, newFromOld;

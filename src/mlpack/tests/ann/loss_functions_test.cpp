@@ -41,6 +41,7 @@ TEST_CASE("HuberLossTest", "[LossFunctionsTest]")
       "-1.0000 0.7748 0.2580 1.0000 0.0976 1.0000");
   input.reshape(4, 3);
   target.reshape(4, 3);
+  output.reshape(4, 3);
   expectedOutput.reshape(4, 3);
 
   // Test the Forward function. Loss should be 6.36364.
@@ -96,6 +97,11 @@ TEST_CASE("PoissonNLLLossTest", "[LossFunctionsTest]")
                      "0.589540 0.052568 0.549769 0.381504 ");
   target4 = arma::mat("1.0 3.0 1.0 2.0 1.0 4.0 2.0 1.0");
 
+  output1.reshape(2, 4);
+  output2.reshape(2, 4);
+  output3.reshape(2, 4);
+  output4.reshape(2, 4);
+
   double loss1 = module1.Forward(input, target);
   double loss2 = module2.Forward(input, target);
   double loss3 = module3.Forward(input, target);
@@ -144,7 +150,7 @@ TEST_CASE("PoissonNLLLossTest", "[LossFunctionsTest]")
 /**
  * Simple KL Divergence test.
  */
-TEST_CASE("SimpleKLDivergenceTest", "[LossFunctionsTest]")
+TEST_CASE("SimpleKLDivergenceTest", "[LossFunctionsTest][tiny]")
 {
   arma::mat input, target, output;
   arma::mat expectedOutput;
@@ -200,7 +206,7 @@ TEST_CASE("SimpleMeanSquaredLogarithmicErrorTest", "[LossFunctionsTest]")
 {
   arma::mat input, target, output, expectedOutput;
   double loss;
-  MeanSquaredLogarithmicError module;
+  MeanSquaredLogarithmicError module(true);
 
   // Test for sum reduction.
   input = arma::mat("-0.0494 1.1958 1.0486 -0.2121 1.6028 0.0737 -0.7091 "
@@ -239,10 +245,10 @@ TEST_CASE("SimpleMeanSquaredLogarithmicErrorTest", "[LossFunctionsTest]")
 /*
  * Simple test for the mean squared error performance function.
  */
-TEST_CASE("SimpleMeanSquaredErrorTest", "[LossFunctionsTest]")
+TEST_CASE("SimpleMeanSquaredErrorTest", "[LossFunctionsTest][tiny]")
 {
   arma::mat input, output, target;
-  MeanSquaredError module(false);
+  MeanSquaredError module;
 
   // Test the Forward function on a user generated input and compare it against
   // the manually calculated result.
@@ -254,9 +260,9 @@ TEST_CASE("SimpleMeanSquaredErrorTest", "[LossFunctionsTest]")
   // Test the Backward function.
   module.Backward(input, target, output);
   // We subtract a zero vector, so according to the used backward formula:
-  // output = 2 * (input - target) / target.n_cols,
+  // output = 2 * (input - target) / target.n_rows,
   // output * nofColumns / 2 should be equal to input.
-  CheckMatrices(input, output * output.n_cols / 2);
+  CheckMatrices(input, output * output.n_rows / 2);
   REQUIRE(output.n_rows == input.n_rows);
   REQUIRE(output.n_cols == input.n_cols);
 
@@ -602,6 +608,7 @@ TEST_CASE("SimpleMeanBiasErrorTest", "[LossFunctionsTest]")
 
   input.reshape(4, 3);
   target.reshape(4, 3);
+  output.reshape(4, 3);
 
   // Test the forward function.
   // Loss should  be 0.1081.
@@ -782,6 +789,8 @@ TEST_CASE("CosineEmbeddingLossTest", "[LossFunctionsTest]")
   input2.ones();
   y = arma::mat(1, 1);
   y.ones();
+  output.reshape(1, 10);
+
   loss = module.Forward(input1, input1);
   REQUIRE(loss == Approx(0.0).margin(1e-6));
 
@@ -806,6 +815,8 @@ TEST_CASE("CosineEmbeddingLossTest", "[LossFunctionsTest]")
   input2(0) = 2;
   input2(1) = 2;
   input2(2) = 2;
+  output.reshape(3, 2);
+
   loss = module.Forward(input1, input2);
   // Calculated using torch.nn.CosineEmbeddingLoss().
   REQUIRE(loss == Approx(2.897367).epsilon(1e-3));
@@ -878,6 +889,7 @@ TEST_CASE("SoftMarginLossTest", "[LossFunctionsTest]")
   target = arma::mat("1 1 -1 1 -1 1 -1 1 1");
   input.reshape(3, 3);
   target.reshape(3, 3);
+  output.reshape(3, 3);
 
   // Test for sum reduction.
 
@@ -1096,6 +1108,7 @@ TEST_CASE("MultiLabelSoftMarginLossTest", "[LossFunctionsTest]")
   target = arma::mat("0 1 0 1 0 0 0 0 1");
   input.reshape(3, 3);
   target.reshape(3, 3);
+  output.reshape(3, 3);
 
   // Test for sum reduction.
 
@@ -1153,6 +1166,7 @@ TEST_CASE("MultiLabelSoftMarginLossWeightedTest", "[LossFunctionsTest]")
   target = arma::mat("0 1 0 1 1 0 0 0 0 0 1 0");
   input.reshape(4, 3);
   target.reshape(4, 3);
+  output.reshape(4, 3);
 
   // Test for sum reduction.
 
@@ -1196,7 +1210,7 @@ TEST_CASE("MultiLabelSoftMarginLossWeightedTest", "[LossFunctionsTest]")
 /**
  * Simple Negative Log Likelihood Loss test.
  */
-TEST_CASE("NegativeLogLikelihoodLossTest", "[LossFunctionsTest]")
+TEST_CASE("NegativeLogLikelihoodLossTest", "[LossFunctionsTest][tiny]")
 {
   arma::mat input, target, output;
   arma::mat expectedOutput;
@@ -1244,7 +1258,7 @@ TEST_CASE("NegativeLogLikelihoodLossTest", "[LossFunctionsTest]")
 /**
  * Jacobian negative log likelihood module test.
  */
-TEST_CASE("JacobianNegativeLogLikelihoodLayerTest", "[LossFunctionsTest]")
+TEST_CASE("JacobianNegativeLogLikelihoodLayerTest", "[LossFunctionsTest][tiny]")
 {
   for (size_t i = 0; i < 5; ++i)
   {

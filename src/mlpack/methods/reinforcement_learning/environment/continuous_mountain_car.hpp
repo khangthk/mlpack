@@ -4,7 +4,7 @@
  * @author Shashank Shekhar
  *
  * This file is an implementation of Continous Mountain Car task:
- * https://www.gymlibrary.ml/environments/classic_control/mountain_car_continuous
+ * https://www.gymlibrary.dev/environments/classic_control/mountain_car_continuous
  *
  * TODO: provide an option to use dynamics directly from OpenAI gym.
  *
@@ -199,13 +199,13 @@ class ContinuousMountainCar
   {
     if (maxSteps != 0 && stepsPerformed >= maxSteps)
     {
-      Log::Info << "Episode terminated due to the maximum number of steps"
-          "being taken.";
+      Log::Info << "Episode terminated due to the maximum number of steps "
+          "being taken." << std::endl;
       return true;
     }
     else if (state.Position() >= positionGoal)
     {
-      Log::Info << "Episode terminated due to agent succeeding.";
+      Log::Info << "Episode terminated due to agent succeeding." << std::endl;
       return true;
     }
     return false;

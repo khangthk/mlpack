@@ -1,9 +1,15 @@
 # The TreeType policy in mlpack
 
 Trees are an important data structure in mlpack and are used in a number of the
-machine learning algorithms that mlpack implements.  Often, the use of trees can
-allow significant acceleration of an algorithm; this is generally done by
-pruning away large parts of the tree during computation.
+machine learning algorithms that mlpack implements.  Trees in mlpack are
+hierarchical structures that organize data points: "nearby" points (with respect
+to a distance metric) are generally grouped in the same node or branch of a
+tree.
+
+For certain machine learning algorithms, this hierarchical organization of data
+points into trees can allow significant computational acceleration.  This
+speedup is typically achieved by pruning away large parts of the tree during
+computation.
 
 Most mlpack algorithms that use trees are not tied to a specific tree but
 instead allow the user to choose a tree via the `TreeType` template parameter.
@@ -202,7 +208,7 @@ class ExampleTree
  public:
   // This is the element type held by the matrix.
   // It will generally either be `double`, or `float`.
-  typedef typename MatType::elem_type ElemType;
+  using ElemType = typename MatType::elem_type;
 
   //////////////////////
   //// Constructors ////
@@ -222,7 +228,7 @@ class ExampleTree
   template<typename Archive>
   ExampleTree(
       Archive& ar,
-      const typename std::enable_if_c<typename Archive::is_loading>::type* = 0);
+      const std::enable_if_t<typename Archive::is_loading>* = 0);
 
   // Release any resources held by the tree.
   ~ExampleTree();
@@ -476,7 +482,7 @@ archive:
 template<typename Archive>
 ExampleTree(
     Archive& ar,
-    const typename std::enable_if_c<typename Archive::is_loading>::type* = 0);
+    const std::enable_if_t<typename Archive::is_loading>* = 0);
 ```
 
 This has implications on how the tree must be stored.  In this case, the dataset
@@ -984,6 +990,23 @@ means that the order of visitation is:
         (q6, r6)
 ```
 
+### `GreedySingleTreeTraversal`
+
+mlpack also provides a special single-tree traversal,
+`GreedySingleTreeTraversal<TreeType, RuleType>`,
+that can be used to recurse in a greedy fashion to the best leaf node (according
+to the `RuleType`, described below).
+
+This single-tree traversal only visits nodes on the direct path between the root
+of the tree and the best leaf.  It can be used with any `TreeType` that
+satisfies the [`TreeType` API requirements](#the-treetype-api).
+
+`GreedySingleTreeTraversal` is used by [`KNN`](../user/methods/knn.md)
+(k-nearest-neighbor search) and [`KFN`](../user/methods/kfn.md) for its
+[greedy search strategy](../user/methods/knn.md#search-strategies), where
+approximate nearest neighbors are returned by recursing directly to the closest
+leaf in a tree.
+
 ## Rules
 
 The third part of a tree-based algorithm are the rules for when nodes in the
@@ -1263,20 +1286,33 @@ automatically, and must be done in the `RuleType`'s `BaseCase()`, `Score()`, and
 
 ## A list of trees in mlpack and more information
 
-mlpack contains several ready-to-use implementations of trees that satisfy the
+mlpack contains numerous ready-to-use implementations of trees that satisfy the
 TreeType policy API:
 
  - [`KDTree`](../user/core/trees/kdtree.md)
  - [`MeanSplitKDTree`](../user/core/trees/mean_split_kdtree.md)
  - [`BallTree`](../user/core/trees/ball_tree.md)
- - `MeanSplitBallTree`
- - `RTree`
- - `RStarTree`
- - `StandardCoverTree`
+ - [`MeanSplitBallTree`](../user/core/trees/mean_split_ball_tree.md)
+ - [`RPTree`](../user/core/trees/rp_tree.md)
+ - [`MaxRPTree`](../user/core/trees/max_rp_tree.md)
+ - [`UBTree`](../user/core/trees/ub_tree.md)
+ - [`CoverTree`](../user/core/trees/cover_tree.md)
+ - [`Octree`](../user/core/trees/octree.md)
+ - [`RTree`](../user/core/trees/r_tree.md)
+ - [`RStarTree`](../user/core/trees/r_star_tree.md)
+ - [`XTree`](../user/core/trees/x_tree.md)
+ - [`RPlusTree`](../user/core/trees/r_plus_tree.md)
+ - [`RPlusPlusTree`](../user/core/trees/r_plus_plus_tree.md)
+ - [`HilbertRTree`](../user/core/trees/hilbert_r_tree.md)
+ - [`SPTree`](../user/core/trees/sp_tree.md)
+ - [`MeanSPTree`](../user/core/trees/mean_sp_tree.md)
+ - [`NonOrtSPTree`](../user/core/trees/non_ort_sp_tree.md)
+ - [`NonOrtMeanSPTree`](../user/core/trees/non_ort_mean_sp_tree.md)
 
 Often, these are template typedefs of more flexible tree classes:
 
- - [`BinarySpaceTree`](../user/core/trees/binary_space_tree.md) -- binary trees,
+ - [`BinarySpaceTree`](../user/core/trees/binary_space_tree.md): binary trees,
    such as the KD-tree and ball tree
- - `RectangleTree` -- the R tree and variants
- - `CoverTree` -- the cover tree and variants
+ - [`RectangleTree`](../user/core/trees/rectangle_tree.md): the R tree and
+   variants
+ - [`SpillTree`](../user/core/trees/spill_tree.md): the spill tree and variants

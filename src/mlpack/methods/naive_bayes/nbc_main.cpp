@@ -20,6 +20,7 @@
 #include <mlpack/core/util/mlpack_main.hpp>
 
 #include "naive_bayes_classifier.hpp"
+#include "naive_bayes_model.hpp"
 
 using namespace mlpack;
 using namespace mlpack::util;
@@ -89,23 +90,6 @@ BINDING_SEE_ALSO("Naive Bayes classifier on Wikipedia",
 BINDING_SEE_ALSO("NaiveBayesClassifier C++ class documentation",
     "@doc/user/methods/naive_bayes_classifier.md");
 
-// A struct for saving the model with mappings.
-struct NBCModel
-{
-  //! The model itself.
-  NaiveBayesClassifier<> nbc;
-  //! The mappings for labels.
-  Col<size_t> mappings;
-
-  //! Serialize the model.
-  template<typename Archive>
-  void serialize(Archive& ar, const uint32_t /* version */)
-  {
-    ar(CEREAL_NVP(nbc));
-    ar(CEREAL_NVP(mappings));
-  }
-};
-
 // Model loading/saving.
 PARAM_MODEL_IN(NBCModel, "input_model", "Input Naive Bayes "
     "model.", "m");
@@ -152,14 +136,14 @@ void BINDING_FUNCTION(util::Params& params, util::Timers& timers)
     {
       // Load labels.
       Row<size_t> rawLabels = std::move(params.Get<Row<size_t>>("labels"));
-      data::NormalizeLabels(rawLabels, labels, model->mappings);
+      NormalizeLabels(rawLabels, labels, model->mappings);
     }
     else
     {
       // Use the last row of the training data as the labels.
       Log::Info << "Using last dimension of training data as training labels."
           << endl;
-      data::NormalizeLabels(trainingData.row(trainingData.n_rows - 1), labels,
+      NormalizeLabels(trainingData.row(trainingData.n_rows - 1), labels,
           model->mappings);
       // Remove the label row.
       trainingData.shed_row(trainingData.n_rows - 1);
@@ -200,7 +184,7 @@ void BINDING_FUNCTION(util::Params& params, util::Timers& timers)
     {
       // Un-normalize labels to prepare output.
       Row<size_t> rawResults;
-      data::RevertLabels(predictions, model->mappings, rawResults);
+      RevertLabels(predictions, model->mappings, rawResults);
 
       if (params.Has("predictions"))
         params.Get<Row<size_t>>("predictions") = std::move(rawResults);

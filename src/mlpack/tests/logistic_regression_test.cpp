@@ -571,7 +571,7 @@ TEST_CASE("LogisticRegressionLBFGSRegularizationSimpleTest",
 // Test training of logistic regression on a simple dataset using SGD with
 // regularization.
 TEST_CASE("LogisticRegressionSGDRegularizationSimpleTest",
-          "[LogisticRegressionTest]")
+          "[LogisticRegressionTest][tiny]")
 {
   // Very simple fake dataset.
   arma::mat data("1 2 3;"
@@ -597,7 +597,8 @@ TEST_CASE("LogisticRegressionSGDRegularizationSimpleTest",
 
 // Test training of logistic regression on two Gaussians and ensure it's
 // properly separable.
-TEST_CASE("LogisticRegressionLBFGSGaussianTest", "[LogisticRegressionTest]")
+TEST_CASE("LogisticRegressionLBFGSGaussianTest",
+    "[LogisticRegressionTest][tiny]")
 {
   // Generate a two-Gaussian dataset.
   GaussianDistribution<> g1(arma::vec("1.0 1.0 1.0"),
@@ -720,7 +721,13 @@ TEST_CASE("LogisticRegressionInstantiatedOptimizer", "[LogisticRegressionTest]")
 
   // Now do the same with SGD.
   ens::StandardSGD sgdOpt;
+  #if ENS_VERSION_MAJOR >= 3
+  sgdOpt.StepSize() = 0.15 * sgdOpt.BatchSize();
+  #else
+  // Old versions of of ensmallen did not adjust the step size for the batch
+  // size.
   sgdOpt.StepSize() = 0.15;
+  #endif
   sgdOpt.Tolerance() = 1e-75;
   LogisticRegression<> lr2(data, responses, sgdOpt, 0.0005);
 
@@ -1069,7 +1076,7 @@ TEST_CASE("ConstructionThenTraining", "[LogisticRegressionTest]")
 /**
  * Make sure that incremental training works.
  */
-TEST_CASE("IncrementalTraining", "[LogisticRegressionTest]")
+TEST_CASE("IncrementalTraining", "[LogisticRegressionTest][long]")
 {
   // Generate a two-Gaussian dataset.
   GaussianDistribution<> g1(arma::vec("1.0 1.0 1.0"),
@@ -1107,7 +1114,7 @@ TEST_CASE("IncrementalTraining", "[LogisticRegressionTest]")
 TEMPLATE_TEST_CASE("LogisticRegressionAllConstructorsTest",
     "[LogisticRegressionTest]", arma::mat, arma::fmat)
 {
-  typedef TestType MatType;
+  using MatType = TestType;
 
   // Create random data.
   MatType data(50, 1000, arma::fill::randu);
@@ -1170,7 +1177,7 @@ TEMPLATE_TEST_CASE("LogisticRegressionAllConstructorsTest",
 TEMPLATE_TEST_CASE("LogisticRegressionAllTrainTest", "[LogisticRegressionTest]",
     arma::mat, arma::fmat)
 {
-  typedef TestType MatType;
+  using MatType = TestType;
 
   // Create random data.
   MatType data(50, 1000, arma::fill::randu);

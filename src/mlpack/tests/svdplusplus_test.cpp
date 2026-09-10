@@ -17,7 +17,7 @@
 
 using namespace mlpack;
 
-TEST_CASE("SVDPlusPlusEvaluate", "[SVDPlusPlusTest]")
+TEST_CASE("SVDPlusPlusEvaluate", "[SVDPlusPlusTest][tiny]")
 {
   // Define useful constants.
   const size_t numUsers = 100;
@@ -174,7 +174,7 @@ TEST_CASE("SVDPlusPlusFunctionRegularizationEvaluate", "[SVDPlusPlusTest]")
   }
 }
 
-TEST_CASE("SVDPlusPlusFunctionGradient", "[SVDPlusPlusTest]")
+TEST_CASE("SVDPlusPlusFunctionGradient", "[SVDPlusPlusTest][long]")
 {
   // Define useful constants.
   const size_t numUsers = 100;
@@ -252,7 +252,7 @@ TEST_CASE("SVDplusPlusOutputSizeTest", "[SVDPlusPlusTest]")
 {
   // Load small GroupLens dataset.
   arma::mat data;
-  if (!data::Load("GroupLensSmall.csv", data))
+  if (!Load("GroupLensSmall.csv", data))
     FAIL("Cannot load dataset GroupLensSmall.csv");
 
   // Define useful constants.
@@ -286,7 +286,7 @@ TEST_CASE("SVDPlusPlusCleanDataTest", "[SVDPlusPlusTest]")
 {
   // Load small GroupLens dataset.
   arma::mat data;
-  if (!data::Load("GroupLensSmall.csv", data))
+  if (!Load("GroupLensSmall.csv", data))
     FAIL("Cannot load dataset GroupLensSmall.csv");
 
   // Define useful constants.
